@@ -46,12 +46,66 @@ namespace FundooNoteApp.Controllers
             }
 
         }
+        [HttpPost]
+        [Route("Login")]
+        public IActionResult UserLogin(UserLogin userLogin)
+        {
+
+            try
+            {
+
+                var result = iuserBL.Login(userLogin);
+
+                if (result != null)
+                {
+                    return Ok(new { success = true, message = "Login successful", data = result });
+                }
+                else
+                {
+                    return BadRequest(new { success = false, message = "Login unsuccessful" });
+                }
+
+            }
+            catch (System.Exception)
+            {
+
+                throw;
+            }
+        }
+        [HttpPost]
+        [Route("ForgetPassword")]
+        public IActionResult ForgetPassword(string Email)
+        {
+
+            try
+            {
+
+                var result = iuserBL.ForgetPassword(Email);
+
+                if (result != null)
+                {
+                    return Ok(new { success = true, message = "Email Sent successful" });
+                }
+                else
+                {
+                    return BadRequest(new { success = false, message = "Reset Email Unsuccessful" });
+                }
+
+            }
+            catch (System.Exception)
+            {
+
+                throw;
+            }
 
 
 
-       
 
 
 
 
-    } } 
+
+
+        }
+    }
+} 

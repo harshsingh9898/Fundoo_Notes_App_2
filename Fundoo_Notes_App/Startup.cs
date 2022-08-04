@@ -21,7 +21,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Fundoo_Notes_App
+namespace FundooNoteApp
 {
     public class Startup
     {
@@ -35,14 +35,17 @@ namespace Fundoo_Notes_App
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
             services.AddDbContext<FundooContext>(opts => opts.UseSqlServer(Configuration["ConnectionString:FundooDB"]));
             services.AddControllers();
-            services.AddTransient<IUserBL,UserBL>();
+            services.AddTransient<IUserBL, UserBL>();
             services.AddTransient<IUserRL, UserRL>();
+
             services.AddSwaggerGen();
             services.AddSwaggerGen(opt =>
             {
-                opt.SwaggerDoc("v1", new OpenApiInfo { Title = "FundooNotes Web API", Version = "v1", Description = "This is Fundoo Notes Web API using 3 tier Architecture with Entity Framework - Code Frist Approach." });
+
+                opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Fundoo Notes App", Version = "v1", Description = "This is Fundoo notes app 3-tier architecture asp.net core web api project using Entity Framework - code first approach. " });
                 opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
@@ -67,6 +70,7 @@ namespace Fundoo_Notes_App
                 }
                 });
             });
+
             services.AddAuthentication(option =>
             {
                 option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -80,14 +84,25 @@ namespace Fundoo_Notes_App
                     ValidateAudience = false,
                     ValidateLifetime = false,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AppSettings:Key"])) //Configuration["JwtToken:SecretKey"]
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:key"])) //Configuration["JwtToken:SecretKey"]
                 };
             });
+
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c => {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Showing API V1");
+            });
+
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -97,10 +112,7 @@ namespace Fundoo_Notes_App
 
             app.UseRouting();
 
-            app.UseSwagger();
-            app.UseSwaggerUI(c => {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Showing API V1");
-            });
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

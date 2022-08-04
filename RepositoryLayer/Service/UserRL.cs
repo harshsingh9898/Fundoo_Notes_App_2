@@ -1,9 +1,14 @@
 ﻿using CommonLayer.Model;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using RepositoryLayer.Context;
 using RepositoryLayer.Entity;
 using RepositoryLayer.Interface;
 using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
 
 namespace RepositoryLayer.Service
 {
@@ -52,7 +57,7 @@ namespace RepositoryLayer.Service
             }
         }
 
-    /*    public string Login(UserLogin userLoginModel)
+        public string Login(UserLogin userLoginModel)
         {
             try
             {
@@ -60,7 +65,7 @@ namespace RepositoryLayer.Service
 
                 if (LoginResult != null)
                 {
-                    var token = GenerateSecurityToken(LoginResult.Email, LoginResult.UserId);
+                    var token = GenerateSecurityToken(LoginResult.Email, LoginResult.UserId); 
                     return token;
                 }
                 else
@@ -99,7 +104,35 @@ namespace RepositoryLayer.Service
 
             return tokenHandler.WriteToken(token);
 
-        }*/
+        }
+
+        public string ForgetPassword(string Email)
+        {
+            try
+            {
+
+                var emailCheck = fundooContext.UserTable.FirstOrDefault(x => x.Email == Email);
+
+                if (emailCheck != null)
+                {
+                    var Token = GenerateSecurityToken(emailCheck.Email, emailCheck.UserId);
+                    MSMQmodel mSMQmodel = new MSMQmodel();
+                    mSMQmodel.sendData2Queue(Token);
+                    return Token.ToString();
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
 
     }
-}
+
+    }
